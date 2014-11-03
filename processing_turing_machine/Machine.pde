@@ -247,10 +247,10 @@ class TuringMachine {
 	Instruction currentInstruction(int offset) {
 		if (this.page_states.size() > 0) {
 			PageState state = this.page_states.get(this.page_states.size() - 1);
-			Statement statement = (state.statement_index < state.page.statements.size()) ? state.page.statements.get(state.statement_index) : new Statement();
+			Statement statement = (state.statement_index < state.page.statements.size()) ? state.page.statements.get(state.statement_index) : state.page.statements.get(state.page.statements.size() - 1);
 			return statement.instruction;
 		}
-		else return Instruction.NONE;
+		else return Instruction.HALT;
 	}
 
 	Instruction currentInstruction() {

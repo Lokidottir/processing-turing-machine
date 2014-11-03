@@ -3,7 +3,7 @@ TMRender turing_render;
 Clock clock;
 
 //Change this variable to change the speed of the turing machine
-float operations_per_second = 5;
+float operations_per_second = 10;
 
 void setup() {
     rectMode(CENTER);
@@ -27,7 +27,7 @@ void setup() {
     */
     turing_render = new TMRender(new TuringMachine(compiler.compile()), width/2, height/2, 10, operations_per_second, clock);
     //Set input integers here
-    boolean[] tape = {/* first integer */false,false,true,false,true,false,true,false,/* second integer */false,true,true,true,false,true,true,true};
+    boolean[] tape = {/* first integer */false,false,true,true,true,false,true,false,/* second integer */false,true,true,true,false,true,true,true};
     turing_render.machine.tape = new Tape(tape);
 
 }

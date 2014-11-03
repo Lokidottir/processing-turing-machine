@@ -36,7 +36,7 @@ class TMRender {
             Do all the steps we can given the time passed
         */
         //println("(tm renderer) time passed: " + (clock.presentTime - (this.last_action_time)));
-        while ((clock.presentTime - (this.last_action_time) > (1000.0/(act_per_sec * 1000.0)))) {
+        while ((clock.presentTime - (this.last_action_time) > (1000.0/(act_per_sec * 1000.0))) && !this.machine.halted) {
             //println("(tm)");
             this.last_index = this.machine.tape_index;
             this.machine.step();

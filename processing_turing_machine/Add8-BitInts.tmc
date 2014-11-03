@@ -1,3 +1,4 @@
+//Fionan Haralddottir
 //Example TM program that adds two 8-bit binary integers.
 //The first integer is expected at bits 0-7 (zero-index),
 //the second is expected at bits 8-15. The output is displayed
@@ -20,6 +21,7 @@
     call 1
     scan -1
     call 1
+    halt
 [ENDPAGE]
 
 [PAGE 1]
