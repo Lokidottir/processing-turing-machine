@@ -1,9 +1,20 @@
+
+/*
+    Requested todos:
+    show where we are in the program in the souce code
+    allow inputs to be made in-program
+    allow goto-like operation
+    allow text editing in-program (may be out of the question, if not
+    the use hash highlighting)
+    allow string -> input tape
+
+*/
 String src_code;
 TMRender turing_render;
 Clock clock;
 
 //Change this variable to change the speed of the turing machine
-float operations_per_second = 10;
+float operations_per_second = 14;
 
 void setup() {
     rectMode(CENTER);
@@ -23,7 +34,7 @@ void setup() {
     println("loaded source code at size " + src_code.length());
     TMCompiler compiler = new TMCompiler(src_code);
     /*
-        Compile program and set renderer
+        Compile program and set renderer.
     */
     turing_render = new TMRender(new TuringMachine(compiler.compile()), width/2, height/2, 10, operations_per_second, clock);
     //Set input integers here

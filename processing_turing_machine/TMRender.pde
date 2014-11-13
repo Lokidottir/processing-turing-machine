@@ -15,6 +15,7 @@ class TMRender {
     float unit_size;
     int last_index;
     float last_action_time;
+    int steps;
 
 
     TMRender(TuringMachine machine, float x, float y, float size, float act_per_sec, Clock clock) {
@@ -24,6 +25,7 @@ class TMRender {
         this.y = y;
         this.unit_size = size;
         this.last_action_time = clock.presentTime;
+        this.steps = 0;
     }
 
     void update(Clock clock) {
@@ -41,7 +43,10 @@ class TMRender {
             this.last_index = this.machine.tape_index;
             this.machine.step();
             this.last_action_time += (1000.0/(act_per_sec * 1000.0));
+            this.steps++;
             //println("(tm renderer) done a step");
+            //uncomment the next line at your optimisation-obsession peril
+            //if (this.machine.halted) println("(tm renderer) operation completed in " + turing_render.steps + " steps");
         }
     }
 
@@ -49,7 +54,8 @@ class TMRender {
         /*
             First draw tape
         */
-        float x_begin = this.x; //+ (this.last_index - this.machine.tape_index) + (clock.interval(this.last_action_time) * this.unit_size);
+        float x_begin = this.x + (unit_size * clock.interval(this.last_action_time) * (this.last_index - this.machine.tape_index) * this.act_per_sec);
+        x_begin -= (unit_size) * (this.last_index - this.machine.tape_index);
         fill(this.machine.tape.default_state ? 0 : 255);
         for (int i = int((int(x_begin) % int(this.unit_size)) - this.unit_size); i <= width + this.unit_size; i+= this.unit_size) {
             stroke(this.machine.tape.default_state ? 255 : 0);
@@ -84,6 +90,11 @@ class TMRender {
             }
         }
         text(typeAsString(this.machine.currentInstruction(-1)),this.x,this.y - (2 * this.unit_size));
+        for (int i = 0; i < this.machine.index_register.size(); i++) {
+            fill(this.machine.index_register.get(i) ? 0 : 255);
+            stroke(0);
+            rect(this.x + ((i + 2) * unit_size), this.y, unit_size/2,unit_size/2);
+        }
     }
 }
 
