@@ -13,6 +13,6 @@ else then
     goto 1
 endif
 
-MODE machine
+MODE compact
 //horribly non-readable BUT a one liner, equivilent to the above
 0 | 0 | +1 | 1 | -1 | 1
