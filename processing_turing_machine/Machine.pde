@@ -1,4 +1,8 @@
-
+/*
+    ALERT:
+    this class isn't relevent to the current program, and is only kept
+    for visibility's sake.
+*/
 
 final int TURING_CALLSTACK_LIMIT = (int)pow(2,21);
 
