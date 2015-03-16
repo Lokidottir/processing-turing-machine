@@ -1,0 +1,32 @@
+//Fionan Haralddottir
+//3-state busy beaver example from wikipedia, implemented in
+//a turing machine description language
+
+@0
+if true then
+    move +1
+    goto 1
+else then
+    write 1
+    move -1
+    goto 2
+endif
+
+@1
+if true then
+    move +1
+    goto 1
+else then
+    write 1
+    move -1
+    goto 0
+endif
+
+@2
+if true then
+    goto halt
+else then
+    write 1
+    move -1
+    goto 1
+endif

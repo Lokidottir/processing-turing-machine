@@ -1,7 +1,6 @@
 //new syntax type, more turing-table like
 // move can be absolute (no sign, eg 1) or relative (signed, eg +1, -1)
 // state num (inferrable, 0-indexed) | if true write | if true move | if true state | if false write | if false move | if false state
-MODE readable
 @0
 if true then
     write 0 //ommitable as keep
@@ -12,7 +11,3 @@ else then
     move -1
     goto 1
 endif
-
-MODE compact
-//horribly non-readable BUT a one liner, equivilent to the above
-0 | 0 | +1 | 1 | -1 | 1

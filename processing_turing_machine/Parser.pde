@@ -5,12 +5,8 @@
 */
 
 import java.lang.Integer;
-
-final String ITSK_REGEX = "(\\S{4,5})";
-final String IARG_REGEX = "(\\S+)";
 final String ICMT_REGEX = "(\\/\\/.+)";
 final String INUM_REGEX = "(@[0-9]+)";
-final String IMAC_REGEX = "((\\d+\\s*\\|\\s*){5}\\d+.*)";
 final String IMCS_REGEX = //The regex that matches a sub-part of the compact code
                             "([\\+\\-])?(d+))";
 final String IHUM_REGEX = //The regex that matches the whole human-readable state
@@ -69,6 +65,7 @@ class TMParser {
             }
             program.states.add(parsed_state); //Add the evaluated state to the program's list of states.
         }
+        println("[TMParser.parse] returning parsed program");
         return program;
     }
 
@@ -120,6 +117,7 @@ class TMParser {
             */
             return null;
         }
+        println("[TMParser.parseState] returning parsed state");
         return state;
     }
 
@@ -129,7 +127,7 @@ class TMParser {
             describing the decision.
         */
         TMDecision decision = new TMDecision();
-        String write_section = firstMatch("(write\\s+[01]", decision_string);
+        String write_section = firstMatch("(write\\s+[01])", decision_string);
         println("[TMParser.parseDecision] parsing write section");
         if (write_section.equals("")) {
             /*
@@ -163,6 +161,7 @@ class TMParser {
                 The move section is ommited, so define it as stay.
             */
             decision.move_head = 0; //Move no number of tape segments
+            println("[TMParser.parseDecision] no move provided, interpreting as stay (0)");
         }
         else {
             try {
@@ -183,12 +182,13 @@ class TMParser {
             }
         }
         String goto_section = firstMatch("(goto.+)", decision_string);
-        println("[TMParser.parseDecision] parsing move section");
+        println("[TMParser.parseDecision] parsing goto section");
         if (goto_section.equals("")) {
             /*
                 The goto section is ommited, so define it as goto + 1.
             */
             decision.goto_state = statenum + 1; //Go to the next state
+            println("[TMParser.parseDecision] no goto provided, interpreting as goto next state (+1)");
         }
         else {
             try {
@@ -209,7 +209,7 @@ class TMParser {
                 else {
                     /*
                         The goto is signed, and is therefore relative. adding the statenum
-                        to the relative value gets the absolute equivilent.
+                        to the relative value gets the absolute next state.
                     */
                     decision.goto_state = statenum + Integer.parseInt(firstMatch("([0-9]+)",goto_section));
                 }
@@ -224,6 +224,7 @@ class TMParser {
                 return null;
             }
         }
+        println("[TMParser.parseDecision] returning parsed decision");
         return decision;
     }
 }

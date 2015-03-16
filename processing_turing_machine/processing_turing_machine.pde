@@ -33,7 +33,7 @@ void setup() {
     //Set input integers here
     boolean[] tape = {/* first integer */false,false,true,true,true,false,true,false,/* second integer */false,true,true,true,false,true,true,true};
     turing_render.machine.tape = new Tape(tape);
-
+    TMProgram program = (new TMParser(loadFileAsString(dataPath("busy_beaver.tmd")))).parse();
 }
 
 void draw() {
