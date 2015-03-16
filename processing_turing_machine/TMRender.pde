@@ -76,8 +76,8 @@ class TMRender {
             Draw machine
         */
         stroke(0);
-        fill(150,20,150);
-        rect(this.x,this.y,this.unit_size,this.unit_size);
+        fill(60,75,220);
+        triangle(this.x - (this.unit_size/2.0),this.y - (this.unit_size/2.0),this.x,this.y + (this.unit_size/2.0), (this.x + unit_size/2.0), this.y - (this.unit_size/2.0));
         fill(0);
         textSize(this.unit_size);
         /*
@@ -88,13 +88,13 @@ class TMRender {
                 text(i, x_begin + ((i - this.machine.tape_index) * unit_size),this.y + (3 * this.unit_size));
                 line(x_begin + ((i - this.machine.tape_index) * unit_size), this.y + unit_size,x_begin + ((i - this.machine.tape_index) * unit_size), this.y + (2 * unit_size));
             }
-        }
+        }/*
         text(typeAsString(this.machine.currentInstruction(-1)),this.x,this.y - (2 * this.unit_size));
         for (int i = 0; i < this.machine.index_register.size(); i++) {
             fill(this.machine.index_register.get(i) ? 0 : 255);
             stroke(0);
             rect(this.x + ((i + 2) * unit_size), this.y, unit_size/2,unit_size/2);
-        }
+        }*/
     }
 }
 

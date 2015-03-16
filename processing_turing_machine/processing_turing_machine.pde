@@ -1,13 +1,6 @@
-
 /*
-    Requested todos:
-    show where we are in the program in the souce code
-    allow inputs to be made in-program
-    allow goto-like operation
-    allow text editing in-program (may be out of the question, if not
-    the use hash highlighting)
-    allow string -> input tape
-
+    Fionan Haralddottir
+    Code being reworked to be more turing-like, only the old version is currently working.
 */
 String src_code;
 TMRender turing_render;
@@ -22,7 +15,7 @@ void setup() {
     /*
         Set up size
     */
-    size(512,512);
+    size(720,720);
     /*
         Set clock
     */
@@ -36,7 +29,7 @@ void setup() {
     /*
         Compile program and set renderer.
     */
-    turing_render = new TMRender(new TuringMachine(compiler.compile()), width/2, height/2, 10, operations_per_second, clock);
+    turing_render = new TMRender(new TuringMachine(compiler.compile()), width/2, height/2, 20, operations_per_second, clock);
     //Set input integers here
     boolean[] tape = {/* first integer */false,false,true,true,true,false,true,false,/* second integer */false,true,true,true,false,true,true,true};
     turing_render.machine.tape = new Tape(tape);
@@ -47,6 +40,8 @@ void draw() {
     clock.update(1);
     background(255);
     turing_render.update(clock);
+    fill(0);
+    text("Old version of the program, new code under Parser.pde",width/2,20);
 }
 
 String loadFileAsString(String path) {

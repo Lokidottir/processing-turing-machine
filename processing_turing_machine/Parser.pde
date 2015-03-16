@@ -1,3 +1,9 @@
+/*
+    Fionan Haralddottir
+    Turing Machine in Processing
+    March 2015
+*/
+
 import java.lang.Integer;
 
 final String ITSK_REGEX = "(\\S{4,5})";
@@ -13,6 +19,8 @@ final String IIFB_REGEX = //The regex that matches the if portion of the readabl
                             "((if)[\\S\\s]*(?=else))";
 final String IELS_REGEX = //The regex that matches the else portion of the readable mode state
                             "((else)[\\S\\s]*(?=endif))";
+
+
 
 class TMParser {
     String source;
@@ -35,7 +43,12 @@ class TMParser {
             description in the provided string
         */
         TMProgram program = new TMProgram();
-        String wrk_src = this.source.replaceAll(ICMT_REGEX,"");              //Remove all comments from the source code
+        String wrk_src = this.source.replaceAll(ICMT_REGEX,""                //Remove all comments from the string
+                                   ).replaceAll("(false)","0"                //Replace all instances of "false" with "0"
+                                   ).replaceAll("(true)","1"                 //Replace all instances of "true" with "1"
+                                   ).replaceAll("(halt)",                    //Replace all instances of "halt" with the maximum integer value
+                                                         Integer.toString(Integer.MAX_VALUE));
+
         ArrayList<String> all_states = allRegexMatches(IHUM_REGEX,wrk_src);  //Find all strings that match the state regex
         println("found " + all_states.size() + " states");                   //emit how many states were found
         for (int state_index = 0; state_index < all_states.size(); state_index++) {
@@ -77,7 +90,7 @@ class TMParser {
         String if_str   = firstMatch(IIFB_REGEX, state_string); //Get the string that represents the if section of the state
         String else_str = firstMatch(IELS_REGEX, state_string); //Get the string that represents the else section of the state
         println("[TMParser.parseState -> .parseDecision] parsing decisions");
-        if (firstMatch("((false)|(true))",if_str).equals("true")) {
+        if (firstMatch("([01])",if_str).equals("1")) {
             /*
                 the if section is dependent on the bit that the head of the
                 turing machine is 1/true etc.
@@ -85,10 +98,10 @@ class TMParser {
             state.if_true  = this.parseDecision(if_str, state.statenum);
             state.if_false = this.parseDecision(else_str, state.statenum);
         }
-        else if (firstMatch("((false)|(true))",if_str).equals("false")) {
+        else if (firstMatch("([01])",if_str).equals("0")) {
             /*
                 the if section is inverted, the if section only runs if the
-                bit at the head of the turing machine is false.
+                bit at the head of the turing machine is 0/false.
             */
             state.if_true  = this.parseDecision(else_str, state.statenum);
             state.if_false = this.parseDecision(if_str, state.statenum);
@@ -97,7 +110,7 @@ class TMParser {
             /*
                 undefined case, return null as parsing wasn't successful.
             */
-            println("[TMParser.parseState] ");
+            println("[TMParser.parseState][Err] could not parse if decision from code:\n\t" + state_string);
             return null;
         }
         if (state.if_true == null || state.if_false == null) {
@@ -116,28 +129,110 @@ class TMParser {
             describing the decision.
         */
         TMDecision decision = new TMDecision();
-        String write_section = firstMatch("(write\\s+[01]|(true)|(false))", decision_string);
+        String write_section = firstMatch("(write\\s+[01]", decision_string);
+        println("[TMParser.parseDecision] parsing write section");
         if (write_section.equals("")) {
             /*
-                The write section isn't defined, so define it as
+                The write section isn't defined, so define it as keeping
+                the tape as it is
             */
-            decision.write_tape = -1; //-1 denotes "don't write anything to this"
+            println("[TMParser.parseDecision] no write provided, interpreting as keep (-1)");
+            decision.write_tape = -1; // n < 0 denotes "don't write anything to this"
         }
         else {
             try {
-
+                /*
+                    Parse the argument for "write" as an integer (n == 0 as write 0,
+                    n == 1 as write 1).
+                */
+                decision.write_tape = Integer.parseInt(firstMatch("([01])",write_section));
+                println("[TMParser.parseDecision] parsed write argument as " + decision.write_tape);
             }
             catch (NumberFormatException err) {
-
+                /*
+                    Parse error, return null
+                */
+                println("[TMParser.parseDecision][Err] Could not parse write argument from code:\n\t" + write_section);
+                return null;
             }
         }
         String move_section = firstMatch("(move\\s+[0-9]+)", decision_string);
+        println("[TMParser.parseDecision] parsing move section");
+        if (move_section.equals("")) {
+            /*
+                The move section is ommited, so define it as stay.
+            */
+            decision.move_head = 0; //Move no number of tape segments
+        }
+        else {
+            try {
+                /*
+                    Parse the argument for "move" as an integer (n < 0 as n
+                    segments left, n > 0 as n segments right, n == 0 as stay).
+                */
+                decision.move_head = Integer.parseInt(firstMatch("(([\\+\\-])?[0-9]+)",move_section));
+                println("[TMParser.parseDecision] parsed move argument as " + decision.move_head);
+
+            }
+            catch (NumberFormatException err) {
+                /*
+                    Parse error, return null.
+                */
+                println("[TMParser.parseDecision][Err] Could not parse move argument from code:\n\t" + move_section);
+                return null;
+            }
+        }
         String goto_section = firstMatch("(goto.+)", decision_string);
+        println("[TMParser.parseDecision] parsing move section");
+        if (goto_section.equals("")) {
+            /*
+                The goto section is ommited, so define it as goto + 1.
+            */
+            decision.goto_state = statenum + 1; //Go to the next state
+        }
+        else {
+            try {
+                /*
+                    Parse the argument for "goto" as an integer, first looking for
+                    a sign to indicate if the movement is relative or not.
+
+                    if there is a sign (+/-) then the state is added to the statenum
+                    variable, as the goto is relative, otherwise it is absolute and is
+                    set as the goto_state field.
+                */
+                if (firstMatch("([\\+\\-])",goto_section).equals("")) {
+                    /*
+                        There's no sign on the goto, it is absolute.
+                    */
+                    decision.goto_state = Integer.parseInt(firstMatch("([0-9]+)",goto_section));
+                }
+                else {
+                    /*
+                        The goto is signed, and is therefore relative. adding the statenum
+                        to the relative value gets the absolute equivilent.
+                    */
+                    decision.goto_state = statenum + Integer.parseInt(firstMatch("([0-9]+)",goto_section));
+                }
+                println("[TMParser.parseDecision] parsed goto argument as " + decision.goto_state);
+
+            }
+            catch (NumberFormatException err) {
+                /*
+                    Parse error, return null.
+                */
+                println("[TMParser.parseDecision][Err] Could not parse goto argument from code:\n\t" + goto_section);
+                return null;
+            }
+        }
         return decision;
     }
 }
 
 class TMDecision {
+    /*
+        Decision class, represents the write -> move -> goto
+        operations of a decision (if/else) in a state.
+    */
     int write_tape; //Ommitable as keep current
     int move_head;  //Ommitable as stay at position
     int goto_state; //Ommitable as go to the next (+1) state
@@ -145,16 +240,13 @@ class TMDecision {
     TMDecision() {
 
     }
-
-    TMDecision(int write_tape, int move_head, int goto_state) {
-        this.write_tape = write_tape;
-        this.move_head = move_head;
-        this.goto_state = goto_state;
-    }
 }
 
 class TMState {
-    String source;
+    /*
+        State class, represents a single state holding two
+        decisions, the state number and the if/else decisions.
+    */
     int statenum;
     TMDecision if_true;
     TMDecision if_false;
@@ -166,7 +258,6 @@ class TMState {
 }
 
 class TMProgram {
-    String source;
     ArrayList<TMState> states;
 
     TMProgram() {
