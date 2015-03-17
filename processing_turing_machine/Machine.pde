@@ -15,6 +15,8 @@ final int MOVE_GRADUAL   = 1;
 
 final int HALTED_STATENUM = Integer.MAX_VALUE;
 
+boolean PRINT_TM_STATE = false;
+
 class TMachine {
     TMProgram program;         //Program that the turing machine is running
     int       statenum;        //The index of the state that the turing machine is at
@@ -55,36 +57,31 @@ class TMachine {
             /*
                 perform a single operation (write, move, or goto) and then exit.
             */
-            println("d_state: " + this.decision_state + " staten: " + this.statenum + " moves made: " + this.moves_made + " d_mode: " + this.decision_mode + " t_index: " + this.tape_index);
+            if (PRINT_TM_STATE) println("d_state: " + this.decision_state + " staten: " + this.statenum + " moves made: " + this.moves_made + " d_mode: " + this.decision_mode + " t_index: " + this.tape_index);
             switch (this.decision_state) {
                 case WRITE_STATE:
-                    //println("[TMachine.step] write state " + this.statenum);
                     this.decision_mode = this.tape.read(this.tape_index);
                     boolean to_write;
-                    if (this.program.getStateByStatenum(this.statenum).getDecisionByBoolean(this.decision_mode).move_head < 0) to_write = this.decision_mode;
-                    else to_write = this.program.getStateByStatenum(this.statenum).getDecisionByBoolean(this.decision_mode).move_head != 0;
+                    if (this.program.getStateByStatenum(this.statenum).getDecisionByBoolean(this.decision_mode).write_tape < 0) to_write = this.tape.read(this.tape_index);
+                    else to_write = this.program.getStateByStatenum(this.statenum).getDecisionByBoolean(this.decision_mode).write_tape != 0;
                     this.tape.write(this.tape_index, to_write);
                     this.decision_state = MOVE_STATE;
                     break;
                 case MOVE_STATE:
-                    //println("[TMachine.step] move from " + this.tape_index);
 
                     if (this.move_mode == MOVE_IMMEDIATE) {
                         this.tape_index += this.program.getStateByStatenum(this.statenum).getDecisionByBoolean(this.decision_mode).move_head;
                         this.decision_state = GOTO_STATE;
-                        println("running this!");
                     }
                     else if (this.move_mode == MOVE_GRADUAL) {
                         /*
                             The move is gradual, so move one bit in the direction of the move each step.
                         */
-                        int moves_needed_to_make = (int)abs(this.program.getStateByStatenum(this.statenum).getDecisionByBoolean(this.decision_mode).move_head);
-                    //    println("need to make " + moves_needed_to_make + " moves, have made " + this.moves_made);
+                        int moves_needed_to_make = ceil(abs(this.program.getStateByStatenum(this.statenum).getDecisionByBoolean(this.decision_mode).move_head));
                         if (this.program.getStateByStatenum(this.statenum).getDecisionByBoolean(this.decision_mode).move_head != 0 && this.moves_made < moves_needed_to_make) {
                             this.tape_index += (this.program.getStateByStatenum(this.statenum).getDecisionByBoolean(this.decision_mode).move_head < 0 ? -1 : 1);
                             this.moves_made++;
                         }
-                        //println("need to make " + moves_needed_to_make + " moves, have made " + this.moves_made);
                         if (this.moves_made >= moves_needed_to_make) {
                             this.moves_made = 0;
                             this.decision_state = GOTO_STATE;

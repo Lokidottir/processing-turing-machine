@@ -27,7 +27,7 @@ endif
 @2
 if false then
     write 1
-    move +1
+    move -1
     goto 1
 else then
     write 1

@@ -17,7 +17,7 @@ class TMRenderer {
     TMRenderer(TMachine turing_machine, float actions_per_second, float x, float y, float display_width, float size) {
         this.turing_machine         = turing_machine;                 //Assign the turing machine
         this.actions_per_second     = actions_per_second;             //Set the actions per second
-        this.time_until_next_action = 0;                              //Set the time until the next action to 0
+        this.time_until_next_action = 1/actions_per_second;           //Set the time until the next action to 0
         this.x                      = x;                              //Set the x coordinate
         this.y                      = y;                              //Set the y coordinate
         this.display_width          = display_width;                  //Set the display width
@@ -38,22 +38,23 @@ class TMRenderer {
             Do the number of steps possible in the time that
             has passed.
         */
-        if (!this.turing_machine.halted) {
-            this.time_until_next_action -= clock.interval();
-            while (this.time_until_next_action <= 0.0 && !this.turing_machine.halted) {
-                this.previous_tape_index = this.turing_machine.tape_index;
-                this.turing_machine.step();
-                this.time_until_next_action += (1.0/this.actions_per_second);
+        if (!this.turing_machine.halted) {                   //Skip the processing if the turing machine is halted, as the program will needlessly loop
+            this.time_until_next_action -= clock.interval(); //Take the time interval away from the time_until_next_action variable, acting like a countdown
+
+            while (this.time_until_next_action <= 0.0 && !this.turing_machine.halted) { //While the countdown is in the negatives, update. also check for halting
+                this.previous_tape_index = this.turing_machine.tape_index;              //Set the previous tape index as the turing machine's current tape index
+                this.turing_machine.step();                                             //Step the turing machine's program
+                this.time_until_next_action += (1.0/this.actions_per_second);           //Add the "seconds-per-action" to the time until the next action.
             }
         }
     }
 
     void display(Clock clock) {
         pushMatrix();
-        translate(this.x,this.y);
-        this.displayHead(clock);
-        this.displayTape(clock);
-        this.displayStateDetails(clock);
+        translate(this.x,this.y);        //Translate to the coordinates of the turing machine
+        this.displayHead(clock);         //Display the head of the turing machine
+        this.displayTape(clock);         //Display the tape the machine is acting upon
+        this.displayStateDetails(clock); //Display information about the turing machine's state
         popMatrix();
     }
 
@@ -62,7 +63,8 @@ class TMRenderer {
             Display the head of the turing machine
         */
         //Draw a triangle pointing to where the turing machine's head is on the tape.
-        triangle(-(this.size/2.0),0,0,this.size,this.size,0);
+        //As the head is stationary, draw a triangle poinging towards the centre.
+        triangle(-(this.size/2.0),0,0,this.size,this.size/2.0,0);
     }
 
     void displayTape(Clock clock) {
@@ -70,20 +72,68 @@ class TMRenderer {
             Display the tape the turing machine is working on.
         */
         pushMatrix();
-        translate(0,this.size);
+        translate(0,this.size * 1.5);
+        int bit_display_count = ceil(this.display_width/this.size);     //Calculate the number of tape segments/bits to be displayed
         int starting_index = this.turing_machine.tape_index             //Use the renderer's current index as the centre
-                            - (int)((this.display_width/this.size)/2);  //calculate half the number of tape symbols that can be displayed and subtract this from the centre for a most-left starting point.
-        int ending_index = starting_index + (int)(this.display_width/this.size);
-        for (int i = starting_index; i < ending_index; i++) {
+                            - bit_display_count/2;                      //The starting point will be half the number of bits to be displayed across from the centre.
+
+        int ending_index = starting_index + bit_display_count;          //Add the bit display count to the starting index to get the ending index.
+
+        for (int i = starting_index; i <= ending_index; i++) {
             pushMatrix();
-            translate();
+            float temporal_offset = this.calculateMovementOffset();     //Get the time-sensitive movement offset for animating movement
+            translate(-((bit_display_count/2) * this.size)              //Translate to the calculated position to display the bit's status
+                      + ((i - starting_index) * size) + temporal_offset, 0);
+
+            fill(this.turing_machine.tape.read(i) ? 0 : 255);           //Fill black/white depending on true/false
+            stroke(this.turing_machine.tape.read(i) ? 255 : 0);         //Stroke white/black depending on true/false
+            rect(0,0,this.size,this.size);                              //Draw the rectangle representing the bit
+            if (i % 8 == 0) {
+                /*
+                    Draw a marker at every 8th point indicating
+                    the tape index for easier reading of tape by
+                    visual observers of the tape.
+                */
+                stroke(0);
+                fill(0);
+                textSize(this.size);
+                line(0,this.size/2,0,(this.size/2) * 3);
+                pushMatrix();
+                translate(0,this.size * 2.5);
+                textAlign(LEFT);
+                text(i,0,0);
+                popMatrix();
+            }
             popMatrix();
         }
         popMatrix();
     }
 
-    void displayStateDetails(Clock clock) {
+    float calculateMovementOffset() {
+        return 0;
+    }
 
+    void displayStateDetails(Clock clock) {
+        pushMatrix();
+        translate(0,-this.size * 6);
+        textSize(this.size);
+        fill(0);
+        textAlign(LEFT);
+        text("state : " + (this.turing_machine.statenum != HALTED_STATENUM ? this.turing_machine.statenum : "Halted") + "\n" +
+             "decision mode : " + this.turing_machine.decision_mode + "\n" +
+             "action : " + this.decisionActionAsString() + "\n" +
+             "tape index : " + this.turing_machine.tape_index
+             ,0,0);
+        popMatrix();
+    }
+
+    String decisionActionAsString() {
+        switch (this.turing_machine.decision_state) {
+            case WRITE_STATE: return "Writing";
+            case MOVE_STATE:  return "Moving";
+            case GOTO_STATE:  return "State transition";
+            default:          return "Nullstate";
+        }
     }
 }
 

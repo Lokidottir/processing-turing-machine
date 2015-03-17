@@ -4,31 +4,27 @@
 */
 String src_code;
 Clock clock;
+TMRenderer turing_machine_renderer;
 
 //Change this variable to change the speed of the turing machine
-float operations_per_second = 14;
+float actions_per_second = 4;
 
 void setup() {
     rectMode(CENTER);
-    textAlign(CENTER);
-    /*
-        Set up size
-    */
-    size(720,720);
-    /*
-        Set clock
-    */
+    size((int)(displayWidth * 0.925), (int)(displayHeight * 0.925),P3D);
     clock = new Clock();
     TMProgram program = (new TMParser(loadFileAsString(dataPath("busy_beaver.tmd")))).parse();
     TMachine turing_machine = new TMachine(program);
-    while (!turing_machine.halted) turing_machine.step();
+    turing_machine_renderer = new TMRenderer(turing_machine, actions_per_second, width/2, height/2, width, 15);
+    //while (!turing_machine.halted) turing_machine.step();
 }
 
 void draw() {
     clock.update(1);
     background(255);
+    turing_machine_renderer.update(clock);
+    turing_machine_renderer.display(clock);
     fill(0);
-    text("Old version of the program, new code under Parser.pde",width/2,20);
 }
 
 String loadFileAsString(String path) {

@@ -1,5 +1,7 @@
 /*
-    Regex helper function ported from a project in C++
+    Fionan Haralddottir
+    Turing Machine in Processing
+    March 2015
 */
 
 
@@ -15,26 +17,3 @@ String firstMatch(String regex, String content) {
     if (matches.size() > 0) return matches.get(0);
     else return "";
 }
-/*
-String makeBetweenRegex(final String lhs, final String rhs, boolean inclusive, boolean quotestrings) {
-    String wrk_lhs = quotestrings ? Pattern.quote(lhs) : lhs;
-    String wrk_rhs = quotestrings ? Pattern.quote(rhs) : rhs;
-    String regex = "";
-    if (wrk_lhs.equals(wrk_rhs)) {
-        //Todo
-    }
-    else {
-        regex += "(";
-        if (inclusive) regex += "(" + wrk_lhs + ")";
-        regex += "(?<=" + wrk_lhs + ")([\\S\\s])+(?=" + wrk_rhs + ")";
-        if (inclusive) regex += "(" + wrk_rhs + ")";
-        regex += ")";
-    }
-    println("built regex as " + regex);
-    return regex;
-}
-
-String makeBetweenRegex(final String lhs, final String rhs) {
-    return makeBetweenRegex(lhs, rhs, true, true);
-}
-*/
