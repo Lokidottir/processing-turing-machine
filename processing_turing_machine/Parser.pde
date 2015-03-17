@@ -43,7 +43,7 @@ class TMParser {
                                    ).replaceAll("(false)","0"                //Replace all instances of "false" with "0"
                                    ).replaceAll("(true)","1"                 //Replace all instances of "true" with "1"
                                    ).replaceAll("(halt)",                    //Replace all instances of "halt" with the maximum integer value
-                                                         Integer.toString(Integer.MAX_VALUE));
+                                                         Integer.toString(HALTED_STATENUM));
 
         ArrayList<String> all_states = allRegexMatches(IHUM_REGEX,wrk_src);  //Find all strings that match the state regex
         println("found " + all_states.size() + " states");                   //emit how many states were found
@@ -154,7 +154,7 @@ class TMParser {
                 return null;
             }
         }
-        String move_section = firstMatch("(move\\s+[0-9]+)", decision_string);
+        String move_section = firstMatch("(move\\s+[+-]?[0-9]+)", decision_string);
         println("[TMParser.parseDecision] parsing move section");
         if (move_section.equals("")) {
             /*
@@ -169,7 +169,7 @@ class TMParser {
                     Parse the argument for "move" as an integer (n < 0 as n
                     segments left, n > 0 as n segments right, n == 0 as stay).
                 */
-                decision.move_head = Integer.parseInt(firstMatch("(([\\+\\-])?[0-9]+)",move_section));
+                decision.move_head = Integer.parseInt(firstMatch("(([\\+\\-]){0,1}[0-9]+)",move_section));
                 println("[TMParser.parseDecision] parsed move argument as " + decision.move_head);
 
             }
@@ -252,6 +252,10 @@ class TMState {
     TMDecision if_true;
     TMDecision if_false;
 
+    TMDecision getDecisionByBoolean(boolean decision_bool) {
+        return (decision_bool ? if_true : if_false);
+    }
+
     TMState() {
         this.if_false = new TMDecision();
         this.if_true = new TMDecision();
@@ -259,7 +263,22 @@ class TMState {
 }
 
 class TMProgram {
-    ArrayList<TMState> states;
+    /*
+        Program class, represents a set of states that are
+        executed by the Turing machine as a program.
+    */
+    ArrayList<TMState> states; //An array of states representing the
+
+    TMState getStateByStatenum(int statenum) {
+        /*
+            Returns the state that has the state number specified or null
+            if that state does not exist.
+        */
+        for (int i = 0; i < this.states.size(); i++) {
+            if (this.states.get(i).statenum == statenum) return this.states.get(i);
+        }
+        return null;
+    }
 
     TMProgram() {
         this.states = new ArrayList<TMState>();

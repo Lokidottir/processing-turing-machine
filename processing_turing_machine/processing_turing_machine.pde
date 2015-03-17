@@ -34,6 +34,8 @@ void setup() {
     boolean[] tape = {/* first integer */false,false,true,true,true,false,true,false,/* second integer */false,true,true,true,false,true,true,true};
     turing_render.machine.tape = new Tape(tape);
     TMProgram program = (new TMParser(loadFileAsString(dataPath("busy_beaver.tmd")))).parse();
+    TMachine turing_machine = new TMachine(program);
+    while (!turing_machine.halted) turing_machine.step();
 }
 
 void draw() {

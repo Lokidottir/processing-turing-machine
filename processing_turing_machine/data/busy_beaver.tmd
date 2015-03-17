@@ -3,7 +3,8 @@
 //a turing machine description language
 
 @0
-if true then
+if false then
+    write 1
     move +1
     goto 1
 else then
@@ -13,20 +14,23 @@ else then
 endif
 
 @1
-if true then
+if false then
+    write 1
+    move -1
+    goto 0
+else then
+    write 1
+    move +1
+    goto 1
+endif
+
+@2
+if false then
+    write 1
     move +1
     goto 1
 else then
     write 1
-    move -1
-    goto 0
-endif
-
-@2
-if true then
+    move 0
     goto halt
-else then
-    write 1
-    move -1
-    goto 1
 endif
