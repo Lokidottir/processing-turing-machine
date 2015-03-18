@@ -40,7 +40,7 @@ class TMParser {
             description in the provided string
         */
         TMProgram program = new TMProgram();
-        String wrk_src = this.source.replaceAll(PARSER_CMT_REGEX,""                //Remove all comments from the string
+        String wrk_src = this.source.replaceAll(PARSER_CMT_REGEX,""          //Remove all comments from the string
                                    ).replaceAll("(false)","0"                //Replace all instances of "false" with "0"
                                    ).replaceAll("(true)","1"                 //Replace all instances of "true" with "1"
                                    ).replaceAll("(halt)",                    //Replace all instances of "halt" with the maximum integer value

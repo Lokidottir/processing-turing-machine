@@ -15,14 +15,14 @@ Clock      clock;
 TMRenderer turing_machine_renderer;
 
 //Change this variable to change the speed of the turing machine
-float actions_per_second = 5;
+float actions_per_second = 20;
 
 void setup() {
     rectMode(CENTER);
     size((int)(displayWidth * 0.925), (int)(displayHeight * 0.925));
     frame.setTitle("Turing Machine Emulator and Editor in Processing");
     clock = new Clock();
-    TMProgram program = (new TMParser(loadFileAsString(dataPath("example-programs/busy_beaver.tmc")))).parse();
+    TMProgram program = (new TMParser(loadFileAsString(dataPath("example-programs/busy_beaver_4state.tmc")))).parse();
     TMachine turing_machine = new TMachine(program);
     turing_machine_renderer = new TMRenderer(turing_machine,
                                              actions_per_second,
@@ -30,14 +30,11 @@ void setup() {
                                              height/2,
                                              width,
                                              16);
-    //turing_machine.halted = true;
     editor = new TextEditor();
-    editor.loadProgram(dataPath("example-programs/busy_beaver.tmc")); //load example program
+    editor.loadProgram(dataPath("example-programs/busy_beaver_4state.tmc")); //load example program
     editor.current_file_location = null;                              //disallow oversaving the example program
-}
-
-void printathing() {
-    print("athing");
+    editor.mousePressed(0,0);
+    turing_machine_renderer.pause();
 }
 
 void draw() {

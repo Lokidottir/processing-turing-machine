@@ -1,0 +1,58 @@
+//Fionan Haralddottir
+//5-state busy beaver example from wikipedia, implemented in
+//a turing machine description language
+
+@0
+if false
+    write 1
+    move +1
+    goto 1
+else
+    write 1
+    move -1
+    goto 2
+endif
+
+@1
+if false
+    write 1
+    move +1
+    goto 2
+else
+    write 1
+    move +1
+    goto 1
+endif
+
+@2
+if false
+    write 1
+    move +1
+    goto 3
+else
+    write 0
+    move -1
+    goto 4
+endif
+
+@3
+if false
+    write 1
+    move -1
+    goto 0
+else
+    write 1
+    move -1
+    goto 3
+endif
+
+@4
+if false
+    write 1
+    move +1
+    goto halt
+else
+    write 0
+    move -1
+    goto 0
+endif

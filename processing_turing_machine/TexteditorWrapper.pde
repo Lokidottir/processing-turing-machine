@@ -17,8 +17,8 @@ class TextEditor {
     float toggle_width;           //The toggle width of the
     GButton save_button;          //The saveing button
     GButton run_button;           //The program run button
-    GButton pause_button;         //The program pause button
-    GButton resume_button;        //The resume program button
+    GButton toggled_paused_button;//The program pause button
+    GButton save_as_button;        //The resume program button
     GButton reset_button;         //The program clear tape button
     GButton load_button;          //The load program from file button
     TextEditor() {
@@ -29,32 +29,33 @@ class TextEditor {
                                           G4P.SCROLLBARS_BOTH | G4P.SCROLLBARS_AUTOHIDE); //have scrollbars that autohide
         this.text_area.setText("//Paste/load/write code here");
         this.text_area.setFont(FontManager.getFont("Courier 10 Pitch",Font.PLAIN,15));
-        this.save_button = setupNewButton(this.text_area.getX(),
+        this.save_button = setupNewButton(this.text_area.getX(),                                    //Set up the save button
                                           this.text_area.getY() + this.text_area.getHeight(),
                                           this.text_area.getWidth()/2,
                                           20,
-                                          "save file");
-        this.load_button = setupNewButton(this.text_area.getX() + this.text_area.getWidth()/2,
+                                          "save");
+        this.load_button = setupNewButton(this.text_area.getX() + this.text_area.getWidth()/2,      //Set up the Load button
                                           this.text_area.getY() + this.text_area.getHeight(),
                                           this.text_area.getWidth()/2,
                                           20,
-                                          "load file");
-        this.pause_button = setupNewButton(this.text_area.getX(),
+                                          "load");
+        this.toggled_paused_button = setupNewButton(
+                                           this.text_area.getX() + this.text_area.getWidth()/2,    //Set up the resume button
                                            this.text_area.getY() + this.text_area.getHeight() + 20,
                                            this.text_area.getWidth()/2,
                                            20,
-                                          "pause");
-        this.resume_button = setupNewButton(this.text_area.getX() + this.text_area.getWidth()/2,
-                                          this.text_area.getY() + this.text_area.getHeight() + 20,
-                                          this.text_area.getWidth()/2,
-                                          20,
-                                          "run/resume");
-        this.reset_button = setupNewButton(this.text_area.getX(),
+                                          "pause/play");
+        this.save_as_button = setupNewButton(this.text_area.getX(),                                 //Set up the save as button
+                                            this.text_area.getY() + this.text_area.getHeight() + 20,
+                                            this.text_area.getWidth()/2,
+                                            20,
+                                            "save as");
+        this.reset_button = setupNewButton(this.text_area.getX(),                                   //Set up the reset button
                                           this.text_area.getY() + this.text_area.getHeight() + 40,
                                           this.text_area.getWidth()/2,
                                           20,
                                           "reset machine");
-        this.run_button =  setupNewButton(this.text_area.getX() + this.text_area.getWidth()/2,
+        this.run_button =  setupNewButton(this.text_area.getX() + this.text_area.getWidth()/2,      //Set up the run button
                                           this.text_area.getY() + this.text_area.getHeight() + 40,
                                           this.text_area.getWidth()/2,
                                           20,
@@ -77,11 +78,11 @@ class TextEditor {
             else if (button == this.load_button)  {
                 selectInput("Select a file to load into the text editor.", "loadProgramFromPrompt");
             }
-            else if (button == this.pause_button) {
-                turing_machine_renderer.pause();
+            else if (button == this.toggled_paused_button) {
+                turing_machine_renderer.togglePaused();
             }
-            else if (button == this.resume_button) {
-                turing_machine_renderer.unpause();
+            else if (button == this.save_as_button) {
+                selectOutput("Select where you want to save the program", "saveFileFromPrompt");
             }
             else if (button == this.reset_button) {
                 turing_machine_renderer.reset();
@@ -112,8 +113,8 @@ class TextEditor {
                 this.text_area.setVisible(false);
                 this.save_button.setVisible(false);
                 this.run_button.setVisible(false);
-                this.pause_button.setVisible(false);
-                this.resume_button.setVisible(false);
+                this.toggled_paused_button.setVisible(false);
+                this.save_as_button.setVisible(false);
                 this.reset_button.setVisible(false);
                 this.load_button.setVisible(false);
             }
@@ -121,12 +122,14 @@ class TextEditor {
                 this.text_area.setVisible(true);
                 this.save_button.setVisible(true);
                 this.run_button.setVisible(true);
-                this.pause_button.setVisible(true);
-                this.resume_button.setVisible(true);
+                this.toggled_paused_button.setVisible(true);
+                this.save_as_button.setVisible(true);
                 this.reset_button.setVisible(true);
                 this.load_button.setVisible(true);
             }
         }
+        turing_machine_renderer.display_width = (width - this.fullWidth());
+        turing_machine_renderer.x = turing_machine_renderer.display_width/2;
     }
 
     boolean withinToggleBounds(float x, float y) {
