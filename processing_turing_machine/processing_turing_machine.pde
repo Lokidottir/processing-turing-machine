@@ -20,6 +20,7 @@ float actions_per_second = 5;
 void setup() {
     rectMode(CENTER);
     size((int)(displayWidth * 0.925), (int)(displayHeight * 0.925));
+    frame.setTitle("Turing Machine Emulator and Editor in Processing");
     clock = new Clock();
     TMProgram program = (new TMParser(loadFileAsString(dataPath("example-programs/busy_beaver.tmc")))).parse();
     TMachine turing_machine = new TMachine(program);
