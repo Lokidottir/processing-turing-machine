@@ -15,7 +15,7 @@ Clock      clock;
 TMRenderer turing_machine_renderer;
 
 //Change this variable to change the speed of the turing machine
-float actions_per_second = 3;
+float actions_per_second = 5;
 
 void setup() {
     rectMode(CENTER);
@@ -27,14 +27,12 @@ void setup() {
                                              actions_per_second,
                                              width/2,
                                              height/2,
-                                             width, 15);
-    turing_machine.halted = true;
+                                             width,
+                                             16);
+    //turing_machine.halted = true;
     editor = new TextEditor();
-                                             /*
-    text_editor = new GTextArea(this,20,20,200,200,G4P.SCROLLBARS_BOTH | G4P.SCROLLBARS_AUTOHIDE);
-    text_editor.setText("//Write/load something here");
-    text_editor.setPromptText("Enter or load code into here to run on the turing machine");
-*/
+    editor.loadProgram(dataPath("example-programs/busy_beaver.tmc")); //load example program
+    editor.current_file_location = null;                              //disallow oversaving the example program
 }
 
 void printathing() {
@@ -54,6 +52,13 @@ void mousePressed () {
     editor.mousePressed(mouseX,mouseY);
 }
 
+void handleTextEvents(GEditableTextControl textcontrol, GEvent event) {
+    editor.handleTextEvents(textcontrol,event);
+}
+
+void handleButtonEvents(GButton button, GEvent event) {
+    editor.handleButtonEvents(button,event);
+}
 
 String loadFileAsString(String path) {
     return knitStringArray(loadStrings(path),"\n");

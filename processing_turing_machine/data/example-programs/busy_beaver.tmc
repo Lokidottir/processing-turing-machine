@@ -3,33 +3,33 @@
 //a turing machine description language
 
 @0
-if false then
+if false
     write 1
     move +1
     goto 1
-else then
+else
     write 1
     move -1
     goto 2
 endif
 
 @1
-if false then
+if false
     write 1
     move -1
     goto 0
-else then
+else
     write 1
     move +1
     goto 1
 endif
 
 @2
-if false then
+if false
     write 1
     move -1
     goto 1
-else then
+else 
     write 1
     move 0
     goto halt

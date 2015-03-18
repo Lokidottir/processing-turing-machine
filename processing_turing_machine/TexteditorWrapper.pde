@@ -39,44 +39,70 @@ class TextEditor {
                                           this.text_area.getWidth()/2,
                                           20,
                                           "load file");
-        this.run_button =  setupNewButton(this.text_area.getX() + this.text_area.getWidth()/2,
-                                          this.text_area.getY() + this.text_area.getHeight() + 40,
-                                          this.text_area.getWidth()/2,
-                                          20,
-                                          "run program");
         this.pause_button = setupNewButton(this.text_area.getX(),
                                            this.text_area.getY() + this.text_area.getHeight() + 20,
                                            this.text_area.getWidth()/2,
                                            20,
-                                          "pause machine");
+                                          "pause");
         this.resume_button = setupNewButton(this.text_area.getX() + this.text_area.getWidth()/2,
                                           this.text_area.getY() + this.text_area.getHeight() + 20,
                                           this.text_area.getWidth()/2,
                                           20,
-                                          "resume machine");
+                                          "run/resume");
         this.reset_button = setupNewButton(this.text_area.getX(),
                                           this.text_area.getY() + this.text_area.getHeight() + 40,
                                           this.text_area.getWidth()/2,
                                           20,
                                           "reset machine");
+        this.run_button =  setupNewButton(this.text_area.getX() + this.text_area.getWidth()/2,
+                                          this.text_area.getY() + this.text_area.getHeight() + 40,
+                                          this.text_area.getWidth()/2,
+                                          20,
+                                          "compile program");
 
 
         this.toggle_width = 20;
     }
 
     void handleButtonEvents(GButton button, GEvent event) {
-        if (button == this.save_button && event == GEvent.CLICKED) {
-            this.saveCurrentProgram();
+        if (event == GEvent.CLICKED) {
+            if (button == this.save_button) {
+                if (this.current_file_location != null) {
+                    this.saveCurrentProgram();
+                }
+                else {
+                    selectOutput("Select where you want to save the program", "saveFileFromPrompt");
+                }
+            }
+            else if (button == this.load_button)  {
+                selectInput("Select a file to load into the text editor.", "loadProgramFromPrompt");
+            }
+            else if (button == this.pause_button) {
+                turing_machine_renderer.pause();
+            }
+            else if (button == this.resume_button) {
+                turing_machine_renderer.unpause();
+            }
+            else if (button == this.reset_button) {
+                turing_machine_renderer.reset();
+            }
+            else if (button == this.run_button) {
+                print("!!!");
+                turing_machine_renderer.reset((new TMParser(knitStringArray(this.text_area.getTextAsArray(), "\n")).parse()));
+            }
         }
     }
 
     void saveCurrentProgram() {
-        if (this.current_file_location == null) {
-
-        }
+        saveStrings(dataPath(this.current_file_location),this.text_area.getTextAsArray());
     }
 
-    void handleTextEvents() {
+    void loadProgram(String path) {
+        this.current_file_location = path;
+        this.text_area.setText(loadStrings(path));
+    }
+
+    void handleTextEvents(GEditableTextControl textcontrol, GEvent event) {
 
     }
 
@@ -128,4 +154,15 @@ GTextArea setupNewTextArea(float x, float y, float width, float height, int poli
 
 GButton setupNewButton(float x, float y, float width, float height, String text) {
     return new GButton(this,x,y,width,height,text);
+}
+
+void loadProgramFromPrompt(File file) {
+    if (file == null) return;
+    editor.loadProgram(file.toString());
+}
+
+void saveFileFromPrompt(File file) {
+    if (file == null) return;
+    editor.current_file_location = file.toString();
+    editor.saveCurrentProgram();
 }

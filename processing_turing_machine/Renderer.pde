@@ -13,6 +13,7 @@ class TMRenderer {
     float    display_width;          //The width of the turing machine display, where the tape cuts off.
     float    size;                   //The size used for drawing the head, tape segments etc. of the machine
     int      previous_tape_index;    //The last index of the turing machine
+    boolean  machine_is_paused;      //The boolean representing if the machine is paused or not
 
     TMRenderer(TMachine turing_machine, float actions_per_second, float x, float y, float display_width, float size) {
         this.turing_machine         = turing_machine;                 //Assign the turing machine
@@ -23,6 +24,7 @@ class TMRenderer {
         this.display_width          = display_width;                  //Set the display width
         this.size                   = size;                           //Set the size
         this.previous_tape_index    = this.turing_machine.tape_index; //Set the previous tape index to the turing machine's current tape index
+        this.machine_is_paused      = false;                          //Set the paused state to false
     }
 
 
@@ -30,7 +32,7 @@ class TMRenderer {
         /*
             Update the state of the turing machine
         */
-        this.doSteps(clock);
+        if (!this.machine_is_paused) this.doSteps(clock);
     }
 
     void doSteps(Clock clock) {
@@ -63,9 +65,21 @@ class TMRenderer {
         /*
             Display the head of the turing machine
         */
+        if (this.machine_is_paused) {
+            fill(255,0,0);
+            stroke(255,0,0);
+        }
+        else {
+            fill(0);
+            stroke(0);
+        }
+
         //Draw a triangle pointing to where the turing machine's head is on the tape.
-        //As the head is stationary, draw a triangle poinging towards the centre.
-        triangle(-(this.size/2.0),0,0,this.size,this.size/2.0,0);
+        //As the head is stationary, draw a triangle poinging towards the centre
+        rect(0,this.size/4.0,this.size,this.size/2.0);
+        triangle(-(this.size/2.0), this.size/2.0,
+                   0,              this.size,
+                   this.size/2.0,  this.size/2.0);
     }
 
     void displayTape(Clock clock) {
@@ -111,7 +125,10 @@ class TMRenderer {
     }
 
     float calculateMovementOffset() {
-        return 0;
+        return (this.time_until_next_action % (1.0/this.actions_per_second))
+              * this.size
+              * (this.turing_machine.tape_index - this.previous_tape_index)
+              * this.actions_per_second;
     }
 
     void displayStateDetails(Clock clock) {
@@ -141,6 +158,28 @@ class TMRenderer {
             case GOTO_STATE:  return "State transition";
             default:          return "Nullstate";
         }
+    }
+
+    void togglePaused() {
+        this.machine_is_paused = !this.machine_is_paused;
+    }
+
+    void pause() {
+        if (!this.machine_is_paused) this.togglePaused();
+    }
+
+    void unpause() {
+        if (this.machine_is_paused) this.togglePaused();
+    }
+
+    void reset() {
+        this.reset(this.turing_machine.program);
+    }
+
+    void reset(TMProgram program) {
+        this.pause();
+        this.turing_machine = new TMachine(program);
+        this.previous_tape_index = this.turing_machine.tape_index;
     }
 }
 
