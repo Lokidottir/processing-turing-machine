@@ -4,7 +4,6 @@
     March 2015
 */
 
-
 ArrayList<String> allRegexMatches(String regex, String content) {
     String[][] matches = matchAll(content,regex);
     ArrayList<String> arrlist = new ArrayList<String>();

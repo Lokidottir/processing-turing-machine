@@ -50,6 +50,7 @@ class TMRenderer {
     }
 
     void display(Clock clock) {
+        rectMode(CENTER);
         pushMatrix();
         translate(this.x,this.y);        //Translate to the coordinates of the turing machine
         this.displayHead(clock);         //Display the head of the turing machine
@@ -94,14 +95,14 @@ class TMRenderer {
                     the tape index for easier reading of tape by
                     visual observers of the tape.
                 */
-                stroke(0);
-                fill(0);
-                textSize(this.size);
-                line(0,this.size/2,0,(this.size/2) * 3);
+                stroke(0);                                              //Set the stroke to 0, so the lines are visible
+                fill(0);                                                //Set the fill to 0, so the text is visible
+                textSize(this.size);                                    //Set the text size
+                line(0,this.size/2,0,(this.size/2) * 3);                //Draw the line from the nth box to where the text will be
                 pushMatrix();
-                translate(0,this.size * 2.5);
-                textAlign(LEFT);
-                text(i,0,0);
+                translate(0,this.size * 2.5);                           //translate to the to-be text coordinates
+                textAlign(CENTER);                                      //Set text alignment
+                text(i,0,0);                                            //Output the index
                 popMatrix();
             }
             popMatrix();
@@ -115,10 +116,13 @@ class TMRenderer {
 
     void displayStateDetails(Clock clock) {
         pushMatrix();
-        translate(0,-this.size * 6);
-        textSize(this.size);
-        fill(0);
-        textAlign(LEFT);
+        translate(0,-this.size * 6); //Translate to where the text will be displayed
+        textSize(this.size);         //Set the text size
+        fill(0);                     //Set the fill to 0
+        textAlign(LEFT);             //Set text alignment
+        /*
+            Render the text
+        */
         text("state : " + (this.turing_machine.statenum != HALTED_STATENUM ? this.turing_machine.statenum : "Halted") + "\n" +
              "decision mode : " + this.turing_machine.decision_mode + "\n" +
              "action : " + this.decisionActionAsString() + "\n" +
@@ -128,6 +132,9 @@ class TMRenderer {
     }
 
     String decisionActionAsString() {
+        /*
+            Return a string description of the current decision state
+        */
         switch (this.turing_machine.decision_state) {
             case WRITE_STATE: return "Writing";
             case MOVE_STATE:  return "Moving";

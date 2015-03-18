@@ -5,16 +5,17 @@
 */
 
 import java.lang.Integer;
-final String ICMT_REGEX = "(\\/\\/.+)";
-final String INUM_REGEX = "(@[0-9]+)";
-final String IMCS_REGEX = //The regex that matches a sub-part of the compact code
-                            "([\\+\\-])?(d+))";
-final String IHUM_REGEX = //The regex that matches the whole human-readable state
-                            "((@[0-9]+))[^@]*(?=endif)(endif)";
-final String IIFB_REGEX = //The regex that matches the if portion of the readable mode state
-                            "((if)[\\S\\s]*(?=else))";
-final String IELS_REGEX = //The regex that matches the else portion of the readable mode state
-                            "((else)[\\S\\s]*(?=endif))";
+
+final String PARSER_CMT_REGEX = //The regex that matches comments in the program
+                                "(\\/\\/.+)";
+final String PARSER_NUM_REGEX = //The regex that matches the state number of a turing machine state
+                                "(@[0-9]+)";
+final String PARSER_HUM_REGEX = //The regex that matches the whole human-readable state
+                                "((@[0-9]+))[^@]*(?=endif)(endif)";
+final String PARSER_IFB_REGEX = //The regex that matches the if portion of the readable mode state
+                                "((if)[\\S\\s]*(?=else))";
+final String PARSER_ELS_REGEX = //The regex that matches the else portion of the readable mode state
+                                "((else)[\\S\\s]*(?=endif))";
 
 
 
@@ -39,14 +40,14 @@ class TMParser {
             description in the provided string
         */
         TMProgram program = new TMProgram();
-        String wrk_src = this.source.replaceAll(ICMT_REGEX,""                //Remove all comments from the string
+        String wrk_src = this.source.replaceAll(PARSER_CMT_REGEX,""                //Remove all comments from the string
                                    ).replaceAll("(false)","0"                //Replace all instances of "false" with "0"
                                    ).replaceAll("(true)","1"                 //Replace all instances of "true" with "1"
                                    ).replaceAll("(halt)",                    //Replace all instances of "halt" with the maximum integer value
                                                          Integer.toString(HALTED_STATENUM));
 
-        ArrayList<String> all_states = allRegexMatches(IHUM_REGEX,wrk_src);  //Find all strings that match the state regex
-        println("found " + all_states.size() + " states");                   //emit how many states were found
+        ArrayList<String> all_states = allRegexMatches(PARSER_HUM_REGEX,wrk_src);  //Find all strings that match the state regex
+        println("[TMParser.parse] found " + all_states.size() + " states");                   //emit how many states were found
         for (int state_index = 0; state_index < all_states.size(); state_index++) {
             /*
                 Loop through the strings that matched the regular expression
@@ -82,10 +83,10 @@ class TMParser {
             substring of that from index 1, as the first character is
             a "@" which is ignored.
         */
-        state.statenum = Integer.parseInt(firstMatch(INUM_REGEX,state_string).substring(1));
+        state.statenum = Integer.parseInt(firstMatch(PARSER_NUM_REGEX,state_string).substring(1));
 
-        String if_str   = firstMatch(IIFB_REGEX, state_string); //Get the string that represents the if section of the state
-        String else_str = firstMatch(IELS_REGEX, state_string); //Get the string that represents the else section of the state
+        String if_str   = firstMatch(PARSER_IFB_REGEX, state_string); //Get the string that represents the if section of the state
+        String else_str = firstMatch(PARSER_ELS_REGEX, state_string); //Get the string that represents the else section of the state
         println("[TMParser.parseState -> .parseDecision] parsing decisions");
         if (firstMatch("([01])",if_str).equals("1")) {
             /*

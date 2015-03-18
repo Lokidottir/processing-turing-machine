@@ -50,7 +50,7 @@ class TMachine {
             Do a step in the program, one "step" is the execution of a
             write, move or goto segment of a decision.
         */
-        if (this.halted) {
+        if (this.halted || this.statenum == HALTED_STATENUM) {
             return; //close, as the machine is halted.
         }
         else {
@@ -62,29 +62,53 @@ class TMachine {
                 case WRITE_STATE:
                     this.decision_mode = this.tape.read(this.tape_index);
                     boolean to_write;
-                    if (this.program.getStateByStatenum(this.statenum).getDecisionByBoolean(this.decision_mode).write_tape < 0) to_write = this.tape.read(this.tape_index);
-                    else to_write = this.program.getStateByStatenum(this.statenum).getDecisionByBoolean(this.decision_mode).write_tape != 0;
-                    this.tape.write(this.tape_index, to_write);
-                    this.decision_state = MOVE_STATE;
+                    if (this.program.getStateByStatenum(this.statenum                           //Get the state
+                                   ).getDecisionByBoolean(this.decision_mode                    //Get the decision
+                                   ).write_tape < 0) to_write = this.tape.read(this.tape_index);//If the write_tape field is < 0, write what is already there (don't change)
+                    else to_write = this.program.getStateByStatenum(this.statenum               //Get the state
+                                               ).getDecisionByBoolean(this.decision_mode        //Get the decision
+                                               ).write_tape != 0;                               //Write to the state write_tape != 0 (0 != 0 = false, >0 != 0 = true)
+                    this.tape.write(this.tape_index, to_write); //Write the decided value to the tape
+                    this.decision_state = MOVE_STATE;           //Transition to the moving decision state
                     break;
                 case MOVE_STATE:
 
                     if (this.move_mode == MOVE_IMMEDIATE) {
-                        this.tape_index += this.program.getStateByStatenum(this.statenum).getDecisionByBoolean(this.decision_mode).move_head;
-                        this.decision_state = GOTO_STATE;
+                        /*
+                            If the move mode is MOVE_IMMEDIATE, then the machine
+                            will go to that position in one step. (eg. 1 -> 2500)
+                        */
+                        this.tape_index += this.program.getStateByStatenum(this.statenum         //Get the state
+                                                      ).getDecisionByBoolean(this.decision_mode  //Get the decision
+                                                      ).move_head;                               //Add the move_head field to the current tape index
+                        this.decision_state = GOTO_STATE; //Transition to the goto decision state
                     }
                     else if (this.move_mode == MOVE_GRADUAL) {
                         /*
-                            The move is gradual, so move one bit in the direction of the move each step.
+                            If the move mode is MOVE_GRADUAL, then the machine
+                            will go to that position in multiple steps. (eg. 1 ->
+                            2 -> ... -> 2499 -> 2500)
                         */
-                        int moves_needed_to_make = ceil(abs(this.program.getStateByStatenum(this.statenum).getDecisionByBoolean(this.decision_mode).move_head));
-                        if (this.program.getStateByStatenum(this.statenum).getDecisionByBoolean(this.decision_mode).move_head != 0 && this.moves_made < moves_needed_to_make) {
-                            this.tape_index += (this.program.getStateByStatenum(this.statenum).getDecisionByBoolean(this.decision_mode).move_head < 0 ? -1 : 1);
-                            this.moves_made++;
+                        int moves_needed_to_make = int(abs(this.program.getStateByStatenum(this.statenum        //Get the state
+                                                                      ).getDecisionByBoolean(this.decision_mode //Get the decision
+                                                                      ).move_head));                            //Get the number of moves needed total, by getting the absolute value of move_head
+
+                        if (this.program.getStateByStatenum(this.statenum         //Get the state
+                                       ).getDecisionByBoolean(this.decision_mode  //Get the decision
+                                       ).move_head != 0                           //If move isn't 0 and the number of moves made is less than the number of moves needed, then move/increment moves_made
+                                       && this.moves_made < moves_needed_to_make) {
+                            this.tape_index += (this.program.getStateByStatenum(this.statenum        //Get the state
+                                                           ).getDecisionByBoolean(this.decision_mode //Get the decision
+                                                           ).move_head < 0 ? -1 : 1);                //If move_head is less than 0, add -1 to the tape index, else add +1
+                            this.moves_made++; //Increment the number of moves made for this movement
                         }
                         if (this.moves_made >= moves_needed_to_make) {
+                            /*
+                                If the number of moves made is equal to or greater
+                                than the moves needed, reset the moves_made to 0
+                            */
                             this.moves_made = 0;
-                            this.decision_state = GOTO_STATE;
+                            this.decision_state = GOTO_STATE; //Transition to the goto decision state
                         }
                     }
                     else {
@@ -93,10 +117,11 @@ class TMachine {
                     }
                     break;
                 case GOTO_STATE:
-                    this.statenum = this.program.getStateByStatenum(this.statenum).getDecisionByBoolean(this.decision_mode).goto_state;
-                    //println("[TMachine.step] goto state " + this.statenum);
-                    this.decision_state = WRITE_STATE;
-                    if (this.statenum == HALTED_STATENUM) this.halted = true;
+                    this.statenum = this.program.getStateByStatenum(this.statenum        //Get the state
+                                               ).getDecisionByBoolean(this.decision_mode //Get the decision
+                                               ).goto_state;                             //Set the current state as the goto state in this decision
+                    this.decision_state = WRITE_STATE;                                   //Transition to the writing decision state
+                    if (this.statenum == HALTED_STATENUM) this.halted = true;            //If at the halting state, halt the turing machine
                     break;
             }
         }
